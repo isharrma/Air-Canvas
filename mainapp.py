@@ -26,10 +26,10 @@ cv2.namedWindow("Trackbars")
 cv2.resizeWindow("Trackbars", 560,320)
 cv2.createTrackbar("Hue Min","Trackbars",0,179,empty)
 cv2.createTrackbar("Hue Max","Trackbars",179,179,empty)
-cv2.createTrackbar("Sat Min","Trackbars",0,255,empty)
-cv2.createTrackbar("Sat Max","Trackbars",255,255,empty)
-cv2.createTrackbar("Val Min","Trackbars",0,255,empty)
-cv2.createTrackbar("Val Max","Trackbars",255,255,empty)
+cv2.createTrackbar("Sat Min","Trackbars",124,255,empty)
+cv2.createTrackbar("Sat Max","Trackbars",198,255,empty)
+cv2.createTrackbar("Val Min","Trackbars",41,255,empty)
+cv2.createTrackbar("Val Max","Trackbars",174,255,empty)
 
 
 #Creating Paint Window
@@ -52,6 +52,7 @@ cv2.putText(paintWin, "BLACK",(530,40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255
 
 while True:
     success,img = cap.read()
+    img = cv2.flip(img,1)
     imgHSV = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
 
     # Getting Trackbar Positions for creating a mask
@@ -69,7 +70,7 @@ while True:
 
     # Shows color Options in Video Outputed by Webcam 
 
-    img = cv2.rectangle(img, (30,1), (120,65), (0,0,0) , 0 )
+    img = cv2.rectangle(img, (30,1), (120,65), (122,122,122) , -1 )
     img = cv2.rectangle(img, (160,1) , (255,65) , colors[0], -1)
     img = cv2.rectangle(img, (280,1) , (370,65) , colors[1], -1)
     img = cv2.rectangle(img, (400,1) , (485,65) , colors[2], -1)
@@ -90,12 +91,30 @@ while True:
     mask = cv2.dilate(mask,kernel,iterations=1)
 
 
-    
+    cnt,_ = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    center = None
+
+    if len(cnt):
+        # Sorting the contours on basis of their length
+        cnt = sorted(cnt,key = cv2.contourArea, reverse=True)[0]
+        # Finding the minimum area of contour
+        ((x,y),radius) = cv2.minEnclosingCircle(cnt)
+        # Drawing the circle around the contour
+        cv2.circle(img, (int(x),int(y)), int(radius), (0,255,255), 1)
+
+        # Finding the are and centroid of the contour
+        M = cv2.moments(cnt)
+        center = (int(M['m10'] / M['m00']) , int(M['m01'] / M['m00']))
+
+
+        # Drawing line on the screen
+        
+
 
 
     cv2.imshow("Air Canvas",img)
     #cv2.imshow("Mask",mask)
-    cv2.imshow("Paint", paintWin)
+    #cv2.imshow("Paint", paintWin)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
