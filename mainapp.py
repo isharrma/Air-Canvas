@@ -115,6 +115,6 @@ while True:
     cv2.imshow("Air Canvas",img)
     #cv2.imshow("Mask",mask)
     #cv2.imshow("Paint", paintWin)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(3) & 0xFF == ord('q'):
         break
 
